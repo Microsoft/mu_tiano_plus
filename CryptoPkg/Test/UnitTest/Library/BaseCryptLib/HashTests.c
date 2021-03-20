@@ -108,9 +108,6 @@ typedef struct {
   VOID                       *HashCtx;
 } HASH_TEST_CONTEXT;
 
-#ifdef ENABLE_MD5_DEPRECATED_INTERFACES
-HASH_TEST_CONTEXT       mMd5TestCtx    = {MD5_DIGEST_SIZE,    Md5GetContextSize,    Md5Init,    Md5Update,    Md5Final,    Md5HashAll,    Md5Digest};
-#endif
 HASH_TEST_CONTEXT       mSha1TestCtx   = {SHA1_DIGEST_SIZE,   Sha1GetContextSize,   Sha1Init,   Sha1Update,   Sha1Final,   Sha1HashAll,   Sha1Digest};
 HASH_TEST_CONTEXT       mSha256TestCtx = {SHA256_DIGEST_SIZE, Sha256GetContextSize, Sha256Init, Sha256Update, Sha256Final, Sha256HashAll, Sha256Digest};
 HASH_TEST_CONTEXT       mSha384TestCtx = {SHA384_DIGEST_SIZE, Sha384GetContextSize, Sha384Init, Sha384Update, Sha384Final, Sha384HashAll, Sha384Digest};
