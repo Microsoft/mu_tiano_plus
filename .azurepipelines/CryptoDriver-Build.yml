@@ -29,7 +29,7 @@ variables:
   value: 'VS2019'
 - name: python_version
   value: '3.9.x'
-- template: ../Version.yaml
+- template: ../Version.yml
 - name: version.release_flavor      # This is the semantic version modifier (e.g. X.Y.Z-dev, "-dev" is the flavor)
   value: ''
 - name: temp_publication_directory
