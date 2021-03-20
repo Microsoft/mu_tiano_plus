@@ -8,7 +8,7 @@
 ##
 
 trigger: none
-trigger: none
+pr: none
 
 parameters:
 - name: publish_nuget
