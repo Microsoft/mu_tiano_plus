@@ -187,9 +187,6 @@ TEST_DESC mHashTest[] = {
     //
     // -----Description----------------Class---------------------Function---------------Pre------------------Post------------Context
     //
-#ifdef ENABLE_MD5_DEPRECATED_INTERFACES
-    {"TestVerifyMd5()",    "CryptoPkg.BaseCryptLib.Hash",   TestVerifyHash, TestVerifyHashPreReq, TestVerifyHashCleanUp, &mMd5TestCtx},
-#endif
     {"TestVerifySha1()",   "CryptoPkg.BaseCryptLib.Hash",   TestVerifyHash, TestVerifyHashPreReq, TestVerifyHashCleanUp, &mSha1TestCtx},
     {"TestVerifySha256()", "CryptoPkg.BaseCryptLib.Hash",   TestVerifyHash, TestVerifyHashPreReq, TestVerifyHashCleanUp, &mSha256TestCtx},
     {"TestVerifySha384()", "CryptoPkg.BaseCryptLib.Hash",   TestVerifyHash, TestVerifyHashPreReq, TestVerifyHashCleanUp, &mSha384TestCtx},
