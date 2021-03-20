@@ -1,0 +1,55 @@
+## @file
+# Azure Devops template file used to set up a shared git config for authorizing requests.
+#
+# Copyright (c) Microsoft Corporation.
+#
+##
+
+# IMPORTANT NOTE:
+# This is a first attempt at getting something like this to work, so here's everything I know about what was done
+# and what the constraints are:
+# - This template is not one that can be easily duplicated among repos. Right now every repo (and maybe every branch?)
+#   needs to carry its own copy.
+# - Finding a temporary path (ie. a path that we KNOW will be scrubbed on every pipeline) in a consistent manner
+#   on Windows and Linux was easier said than done. It needs to be formatted in the Git config in a way that
+#   Git understands. The easiest way I found was to use the pipeline variables to put us in the temp directory
+#   as the working directory, then by using Bash we can format $(pwd) consistently.
+# - Bash may not exist on all builds. The may need to be updated for Powershell.
+# - Bash on Windows seems to execute out of the Git for Windows Bash?
+# - The pipeline copies in a specific version of Git on each pipeline. This version of Git is the one that we're
+#   changing the "--system" level config for. It seems to be reset on every pipeline, but this may not be the case
+#   on custom build agents.
+# - We may need additional "useHttpPath" settings for other repos.
+#
+# Thoughts about next steps...
+# - Potentially re-add the Windows helper after the store helper so the store is asked first.
+# - Don't have to construct the entire credentials store file at once. In theory this could be updated by other processes.
+# - Maybe loop through the available keys? Or build a parameter list higher in the stack and process the list here?
+
+steps:
+- bash: |
+    # In Windows, there is a system-wide credential helper that will block this store from ever being used.
+    # We need to unset it now that we're switching to this helper.
+    git config --system --unset credential.helper;
+  displayName: Disable Windows Core Credential Helper
+  condition: eq(variables['Agent.OS'], 'Windows_NT')
+
+- bash: |
+    # Make sure that for Azure DevOps we use the full path. This way we can match specific orgs to specific tokens.
+    git config --global credential.https://dev.azure.com.useHttpPath true;
+
+    # Here's the primary setup. Switch to our temporary store helper.
+    git config --global credential.helper "store --file $(pwd)/temp-git-credentials";
+
+    # Start adding creds. One for each domain, or repo for DevOps.
+    echo https://$(windowspartners-authuser):$(windowspartners-authpat)@dev.azure.com/windowspartners/MSCoreUEFI/_git/mu_silicon_tiano_intel >> $(pwd)/temp-git-credentials;
+    echo https://$(windowspartners-authuser):$(windowspartners-authpat)@dev.azure.com/windowspartners/_git/Partner_Intel_UEFI >> $(pwd)/temp-git-credentials;
+    echo https://$(windowspartners-authuser):$(windowspartners-authpat)@dev.azure.com/windowspartners/MsCoreUefi_Thanos/_git/msft_fsp >> $(pwd)/temp-git-credentials;
+    echo https://$(windowspartners-authuser):$(windowspartners-authpat)@dev.azure.com/windowspartners/MsCoreUefi_Thanos/_git/scpc_mu_basecore >> $(pwd)/temp-git-credentials;
+    echo https://$(windowspartners-authuser):$(windowspartners-authpat)@dev.azure.com/windowspartners/MsCoreUefi_Thanos/_git/msft_mmsupervisor >> $(pwd)/temp-git-credentials;
+
+    # Add additional creds below...
+    # Should only need domain for non-DevOps repos.
+
+  displayName: Build Git Auth Cache
+  workingDirectory: $(Agent.TempDirectory)
