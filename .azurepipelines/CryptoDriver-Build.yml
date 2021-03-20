@@ -31,7 +31,7 @@ variables:
   value: '3.9.x'
 - template: ../Version.yml
 - name: version.release_flavor      # This is the semantic version modifier (e.g. X.Y.Z-dev, "-dev" is the flavor)
-  value: ''
+  value: '-beta'
 - name: temp_publication_directory
   value: 'PackageStaging'
 - name: package_artifact_name
