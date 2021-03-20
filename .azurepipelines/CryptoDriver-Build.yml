@@ -6,17 +6,43 @@
 # Copyright (C) Microsoft Corporation
 # SPDX-License-Identifier: BSD-2-Clause-Patent
 ##
-name: SharedCrypto_Binary_$(Rev:r)
+
+trigger: none
+trigger: none
+
+parameters:
+- name: publish_nuget
+  displayName: Publish as a Nuget Package
+  type: boolean
+  default: false
+- name: version_patch
+  displayName: Patch Version (0-65535)
+  type: number
+  default: 0
 
 variables:
-  build_archs: 'IA32,X64,AARCH64'
-  build_targets: 'DEBUG,RELEASE'
-  tool_chain_tag: 'VS2019'
-  pkg_count: 1
-  temp_publication_directory: 'PackageStaging'
-  package_artifact_name: 'NugetReleasePackage'
+- name: build_archs
+  value: 'IA32,X64,AARCH64'
+- name: build_targets
+  value: 'DEBUG,RELEASE'
+- name: tool_chain_tag
+  value: 'VS2019'
+- name: python_version
+  value: '3.9.x'
+- template: ../Version.yaml
+- name: version.release_flavor      # This is the semantic version modifier (e.g. X.Y.Z-dev, "-dev" is the flavor)
+  value: ''
+- name: temp_publication_directory
+  value: 'PackageStaging'
+- name: package_artifact_name
+  value: 'NugetReleasePackage'
 
-jobs:
+name: v$(version.major).$(version.minor).${{ parameters.version_patch }}$(version.release_flavor) Build_$(Date:yyyyMMdd)$(Rev:.r)
+
+stages:
+- stage: build
+  displayName: Build
+  jobs:
   - job: crypto_build
     # Use Matrix to build multiple versions
     strategy:
@@ -235,3 +261,6 @@ jobs:
     - publish: $(Build.StagingDirectory)/$(temp_publication_directory)
       displayName: Save the Release Package for Publishing
       artifact: $(package_artifact_name)
+
+# - ${{ if eq(parameters.publish_nuget, true) }}: publish
+#   displayName: Publish
