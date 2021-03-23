@@ -143,7 +143,7 @@ def get_flavors():
             "guid": "d9a75606-caba-4aa0-80a6-591852335400"
         },
         "STANDARD": {
-            "families": ["HMACSHA1", "HMACSHA256", "PKCS", "SHA1", "SHA256", "RANDOM", "TLS", "TLSGET", "TLSSET"],
+            "families": ["HMACSHA256", "PKCS", "SHA1", "SHA256", "RANDOM", "TLS", "TLSGET", "TLSSET"],
             "individuals": ["RsaPkcs1Verify", "RsaNew", "RsaFree", "RsaGetPublicKeyFromX509", "X509GetSubjectName", "X509GetCommonName", "X509GetOrganizationName", "X509GetTBSCert"],
             "exclude": ["Sha1HashAll", "Sha256HashAll", "Pkcs7Sign", "Pkcs7GetCertificatesList", "ImageTimestampVerify"],
             "guid": "bdee011f-87f2-4a7f-bc5e-44b6b61fef00"
@@ -172,6 +172,7 @@ def read_header_file(options, path):
             self.params = []
             self.type = None  # PKCS, SHA1, PKCS for example
             self.source = file_name
+            self.disabled = False
             self.line_no = 0  # this is the line number that the name comes from
 
         def __repr__(self):
@@ -180,12 +181,16 @@ def read_header_file(options, path):
         def get_raw_repr(self):
             ''' this returns what was in the BaseCryptLib.h '''
             lines = []
+            if self.disabled:
+                lines.append("#ifdef 0 // Disabled via an ifdef")
             lines.extend(self.comment)
             lines.append(self.return_type)
             lines.append("EFI_API")
             lines.append(f"{self.name} ( // From {self.source}:{self.line_no}")
             lines.extend(self.params)
             lines.append("  );")
+            if self.disabled:
+                lines.append("#endif // Disabled via an ifdef")
 
             return "\n".join(lines)
 
@@ -200,7 +205,7 @@ def read_header_file(options, path):
         @classmethod
         def valid_types(cls):
             ''' the valid types that the function can be '''
-            return ["HMACMD5", "HMACSHA1", "HMACSHA256", "MD4", "MD5", "PKCS", "DH", "RANDOM", "RSA", "SHA1",
+            return ["HMACSHA256", "PKCS", "DH", "RANDOM", "RSA", "SHA1",
                     "SHA256", "SHA384", "SHA512", "X509", "TDES", "AES", "ARC4", "SM3", "HKDF", "TLS", "TLSSET", "TLSGET"]
 
         def get_escaped_name(self):
@@ -256,8 +261,8 @@ def read_header_file(options, path):
 
         def get_type(self):
             ''' Based on the name, get the type '''
-            if self.type is not None:
-                return self.type
+            if self.disabled:
+                return None
             if self.name == "":
                 return None
             valid_types = self.valid_types()
@@ -276,12 +281,21 @@ def read_header_file(options, path):
 
     cur_function = crypto_function()
     all_functions = []
+    ifdef_level = 0
     # iterate through each line in the header
     for index, line in enumerate(header_file.readlines()):
         sline = line.strip()
         line = line.strip("\n")
+        if sline.startswith("#ifdef"):
+            ifdef_level += 1
+            continue
+        if sline.startswith("#endif"):
+            ifdef_level -= 1
+            continue
         if len(sline) == 0 or sline.startswith("#") or sline.startswith("//"):
             continue
+        if ifdef_level > 0:
+            cur_function.disabled = True
         if sline.startswith("/**"):  # if we find a comment
             cur_function.comment = [line, ]
             mode = modes.COMMENT

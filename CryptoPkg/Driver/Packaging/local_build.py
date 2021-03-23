@@ -116,7 +116,7 @@ if __name__ == "__main__":
         nuget_output_dir = os.path.join(nuget_collection_dir, service)
         os.mkdir(nuget_output_dir)
         print(f"{build_command}: {service}")
-        params = f"-p CryptoPkg BLD_*_CRYPTO_SERVICES={service} BUILDREPORTING=TRUE BUILDREPORT_TYPES=\"LIBRARY DEPEX PCD BUILD_FLAGS\" TOOL_CHAIN_TAG=VS2017"
+        params = f"-p CryptoPkg BLD_*_CRYPTO_SERVICES={service} BUILDREPORTING=TRUE BUILDREPORT_TYPES=\"LIBRARY DEPEX PCD BUILD_FLAGS\" TOOL_CHAIN_TAG=VS2019"
         ret = RunCmd(build_command, f"-c {pytools_config} -t RELEASE,DEBUG {params}", workingdir=root_dir)
         if ret != 0:
             print(f"{build_command} failed with code: {ret}")
