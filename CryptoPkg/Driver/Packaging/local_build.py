@@ -102,7 +102,6 @@ if __name__ == "__main__":
     # now we do the build
     flavors = list(get_flavors())
     flavors.append("ALL")  # the all flavor is implicitly defined
-    flavors = ["STANDARD", ]
     build_command = "stuart_ci_build"
     for service in flavors:
         # First we need to clean out the previous builds Build\CryptoPkg\DEBUG_VS2017\X64\CryptoPkg\Driver
