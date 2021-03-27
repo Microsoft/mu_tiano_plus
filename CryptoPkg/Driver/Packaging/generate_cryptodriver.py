@@ -596,6 +596,8 @@ def get_crypto_dsc(options, functions):
     # first the all flavor
     lines.append("!if $(CRYPTO_SERVICES) IN \"PACKAGE ALL\"")
     for function in functions:
+        if function.disabled:
+            continue
         lines.append(f"  {function.get_pcd_name().ljust(70)}| TRUE")
     lines.append("!endif\n")
     # now we do the flavors
