@@ -20,7 +20,7 @@ from generate_cryptodriver import get_flavors
 def map_path(path: str):
     path = path.lstrip(os.path.sep)
     path_parts = path.split(os.path.sep)
-    if len(path_parts) > 1:  # DEBUG_321321/dasdasdsa
+    if len(path_parts) > 1:
         path_parts[0] = path_parts[0].split("_")[0].upper()
         # if path_parts[0] not in ["DEBUG, RELEASE"]:
         #    print(f"Invalid { path_parts[0]}")
@@ -56,7 +56,7 @@ def move_with_mapping(full_path: str, rel_path: str, output_dir: str, verbose=Fa
 
 if __name__ == "__main__":
     clean = True
-    verbose = True
+    verbose = False
     setup = True
     script_dir = os.path.dirname(__file__)
 
