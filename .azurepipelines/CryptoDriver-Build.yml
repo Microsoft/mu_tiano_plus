@@ -258,9 +258,12 @@ stages:
             };
       displayName: Stage Package Files
 
-    - publish: $(Build.StagingDirectory)/$(temp_publication_directory)
-      displayName: Save the Release Package for Publishing
-      artifact: $(package_artifact_name)
+    - task: PublishBuildArtifacts@1
+      displayName: Publish Binaries
+      inputs:
+        pathtoPublish: '$(Build.StagingDirectory)/$(temp_publication_directory)'
+        artifactName: '$(package_artifact_name)'
+
 
 - ${{ if eq(parameters.publish_nuget, true) }}:
   - stage: publish
@@ -308,9 +311,6 @@ stages:
           script: |
             $configFilePath = "CryptoPkg/Driver/Packaging/edk2-BaseCryptoDriver.config.json";
             $publishVersion = "${{ variables.version.major }}.${{ variables.version.minor }}.${{ parameters.version_patch }}${{ variables.version.release_flavor }}";
-
-            Write-Host Get-ChildItem -Path "$(nuget_staging_directory)";
-            Get-ChildItem -Path "$(nuget_staging_directory)";
 
             Write-Host nuget-publish --Operation PackAndPush --ConfigFilePath "$configFilePath" --InputFolderPath "$(nuget_staging_directory)" --Version "$publishVersion";
             nuget-publish --Operation PackAndPush --ConfigFilePath "$configFilePath" --InputFolderPath "$(nuget_staging_directory)" --Version "$publishVersion";
