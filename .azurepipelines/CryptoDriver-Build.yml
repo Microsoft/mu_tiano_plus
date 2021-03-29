@@ -308,6 +308,7 @@ stages:
         inputs:
           targetType: 'inline'
           script: |
-            $configFilePath = CryptoPkg/Driver/Packaging/edk2-BaseCryptoDriver.config.json
+            $configFilePath = "CryptoPkg/Driver/Packaging/edk2-BaseCryptoDriver.config.json";
 
+            Write-Host nuget-publish --Operation PackAndPush --ConfigFilePath "$configFilePath" --InputFolderPath "$(nuget_staging_directory)" --Version ${{ variables.publish_version }};
             nuget-publish --Operation PackAndPush --ConfigFilePath "$configFilePath" --InputFolderPath "$(nuget_staging_directory)" --Version ${{ variables.publish_version }};
