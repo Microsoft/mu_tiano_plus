@@ -275,7 +275,6 @@ stages:
       value: $(Build.StagingDirectory)/NugetPackage
     - name: nuget_output_log
       value: $(Build.StagingDirectory)/NugetLog.txt
-    - group: UefiBot Release Variables
 
     pool:
       vmImage: windows-latest
@@ -297,6 +296,9 @@ stages:
       - script: pip install -r pip-requirements.txt --upgrade
         displayName: Install/Upgrade Pip Modules
 
+      - task: NuGetAuthenticate@0
+        displayName: Authenticate Local Feed
+
       - task: DownloadBuildArtifacts@0
         name: DownloadBuildArtifacts
         displayName: Download Build Artifacts
@@ -315,8 +317,8 @@ stages:
             $configFilePath = "CryptoPkg/Driver/Packaging/edk2-BaseCryptoDriver.config.json";
             $publishVersion = "$(version.major).$(version.minor).${{ parameters.version_patch }}$(version.release_flavor)";
 
-            Write-Host nuget-publish --Operation PackAndPush --OutputLog "$(nuget_output_log)" --ConfigFilePath "$configFilePath" --InputFolderPath "$(nuget_staging_directory)" --Version "$publishVersion" --ApiKey "$(uefibot.mu_devops_nuget_apikey)";
-            nuget-publish --Operation PackAndPush --OutputLog "$(nuget_output_log)" --ConfigFilePath "$configFilePath" --InputFolderPath "$(nuget_staging_directory)" --Version "$publishVersion" --ApiKey "$(uefibot.mu_devops_nuget_apikey)";
+            Write-Host nuget-publish --Operation PackAndPush --OutputLog "$(nuget_output_log)" --ConfigFilePath "$configFilePath" --InputFolderPath "$(nuget_staging_directory)" --Version "$publishVersion";
+            nuget-publish --Operation PackAndPush --OutputLog "$(nuget_output_log)" --ConfigFilePath "$configFilePath" --InputFolderPath "$(nuget_staging_directory)" --Version "$publishVersion";
 
       - task: PublishBuildArtifacts@1
         displayName: Publish Nuget Log
