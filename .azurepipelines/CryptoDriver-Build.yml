@@ -285,9 +285,9 @@ stages:
         clean: true
 
       - task: UsePythonVersion@0
-        displayName: Use Python ${{ parameters.python_version }}
+        displayName: Use Python $(python_version)
         inputs:
-          versionSpec: ${{ parameters.python_version }}
+          versionSpec: $(python_version)
           architecture: 'x64'
 
       - task: NuGetAuthenticate@0
