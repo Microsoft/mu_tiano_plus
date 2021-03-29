@@ -279,7 +279,7 @@ stages:
 
     jobs:
     - job: DownloadAndPublish
-      displayName: Download and Publish v$(publish_version)
+      displayName: Download and Publish v${{ variables.publish_version }}
 
       steps:
       - checkout: self
