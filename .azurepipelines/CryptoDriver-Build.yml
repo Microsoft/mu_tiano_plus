@@ -262,45 +262,46 @@ stages:
       displayName: Save the Release Package for Publishing
       artifact: $(package_artifact_name)
 
-- ${{ if eq(parameters.publish_nuget, true) }}: publish
-  displayName: Publish
-  dependsOn: build
+- ${{ if eq(parameters.publish_nuget, true) }}:
+  stage: publish
+    displayName: Publish
+    dependsOn: build
 
-  variables:
-  - name: publish_version
-    value: $(version.major).$(version.minor).${{ parameters.version_patch }}$(version.release_flavor)
-  - name: nuget_staging_directory
-    value: $(Build.StagingDirectory)/NugetPackage
+    variables:
+    - name: publish_version
+      value: $(version.major).$(version.minor).${{ parameters.version_patch }}$(version.release_flavor)
+    - name: nuget_staging_directory
+      value: $(Build.StagingDirectory)/NugetPackage
 
-  pool:
-    vmImage: windows-latest
+    pool:
+      vmImage: windows-latest
 
-  jobs:
-  - job: DownloadAndPublish
-    displayName: Download and Publish v$(publish_version)
+    jobs:
+    - job: DownloadAndPublish
+      displayName: Download and Publish v$(publish_version)
 
-    steps:
-    - checkout: self
-      clean: true
+      steps:
+      - checkout: self
+        clean: true
 
-    - task: UsePythonVersion@0
-      displayName: Use Python ${{ parameters.python_version }}
-      inputs:
-        versionSpec: ${{ parameters.python_version }}
-        architecture: 'x64'
+      - task: UsePythonVersion@0
+        displayName: Use Python ${{ parameters.python_version }}
+        inputs:
+          versionSpec: ${{ parameters.python_version }}
+          architecture: 'x64'
 
-    - task: NuGetAuthenticate@0
-      inputs:
-        nuGetServiceConnections: UEFI_Bot_Nuget.org
+      - task: NuGetAuthenticate@0
+        inputs:
+          nuGetServiceConnections: UEFI_Bot_Nuget.org
 
-    - script: pip install -r pip-requirements.txt --upgrade
-      displayName: Install/Upgrade Pip Modules
+      - script: pip install -r pip-requirements.txt --upgrade
+        displayName: Install/Upgrade Pip Modules
 
-    - task: DownloadBuildArtifacts@0
-      name: DownloadBuildArtifacts
-      displayName: Download Build Artifacts
-      inputs:
-        buildType: 'current'
-        downloadType: 'single'
-        artifactName: $(package_artifact_name)
-        downloadPath: '$(nuget_staging_directory)'
+      - task: DownloadBuildArtifacts@0
+        name: DownloadBuildArtifacts
+        displayName: Download Build Artifacts
+        inputs:
+          buildType: 'current'
+          downloadType: 'single'
+          artifactName: $(package_artifact_name)
+          downloadPath: '$(nuget_staging_directory)'
