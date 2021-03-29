@@ -121,7 +121,7 @@ def main():
             inf_lines.append("  PI_SPECIFICATION_VERSION       = 0x00010014")
         inf_lines.append(f"\n[Binaries.{arch}]")
         inf_lines.append(f"  PE32|edk2-basecrypto-driver-bin_extdep/{flavor}/{target}/{arch}/Crypto{phase}.efi|{target}")
-        inf_lines.append(f"  {phase.upper()}_DEPEX|edk2-basecrypto-driver-bin_extdep/{flavor}/{target}/Crypto{phase}.depex|{target}")
+        inf_lines.append(f"  {phase.upper()}_DEPEX|edk2-basecrypto-driver-bin_extdep/NugetReleasePackage/{flavor}/{target}/Crypto{phase}.depex|{target}")
         inf_lines.append("\n[Packages]")
         inf_lines.append("  CryptoPkg/CryptoPkg.dec")
         inf_lines.append("")
