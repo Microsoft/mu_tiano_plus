@@ -272,6 +272,7 @@ stages:
       value: $(version.major).$(version.minor).${{ parameters.version_patch }}$(version.release_flavor)
     - name: nuget_staging_directory
       value: $(Build.StagingDirectory)/NugetPackage
+    - group: UefiBot Release Variables
 
     pool:
       vmImage: windows-latest
