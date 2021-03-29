@@ -272,7 +272,6 @@ stages:
       value: $(version.major).$(version.minor).${{ parameters.version_patch }}$(version.release_flavor)
     - name: nuget_staging_directory
       value: $(Build.StagingDirectory)/NugetPackage
-    - group: UefiBot Release Variables
 
     pool:
       vmImage: windows-latest
@@ -302,3 +301,13 @@ stages:
           downloadType: 'single'
           artifactName: $(package_artifact_name)
           downloadPath: '$(nuget_staging_directory)'
+
+      - task: PowerShell@2
+        name: PackNugetPackage
+        displayName: Pack and Push $(package) $(target) Nuget Package
+        inputs:
+          targetType: 'inline'
+          script: |
+            $configFilePath = CryptoPkg/Driver/Packaging/edk2-BaseCryptoDriver.config.json
+
+            nuget-publish --Operation PackAndPush --ConfigFilePath "$configFilePath" --InputFolderPath "$(nuget_staging_directory)" --Version ${{ variables.publish_version }};
