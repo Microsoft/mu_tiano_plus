@@ -44,7 +44,9 @@ Bug Fixes-dev
 2102_RefBoot Changes
 --------------------
 
-- Incomplete
+- Dropped MD5 functions from BaseCryptLib and binary releases
+  - 'Md5GetContextSize', 'Md5Init', 'Md5Duplicate', 'Md5Update', 'Md5Final', 'Md5HashAll'
+
 
 2102_CIBuild Changes
 --------------------
