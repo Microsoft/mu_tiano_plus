@@ -269,7 +269,7 @@ stages:
 
     variables:
     - name: publish_version
-      value: ${{ version.major }}.${{ version.minor }}.${{ parameters.version_patch }}${{ version.release_flavor }}
+      value: ${{ variables.version.major }}.${{ variables.version.minor }}.${{ parameters.version_patch }}${{ variables.version.release_flavor }}
     - name: nuget_staging_directory
       value: $(Build.StagingDirectory)/NugetPackage
 
