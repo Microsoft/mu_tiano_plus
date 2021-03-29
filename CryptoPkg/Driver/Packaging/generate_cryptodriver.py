@@ -87,6 +87,8 @@ def ParseCommandLineOptions():
                            help="Copy the created files into the correct location (Crypto.c, crypto.h, CryptLib.c)")
     ParserObj.add_argument("--enable-comp-time", "-ctc", dest="ctc", default=False, action='store_true',
                            help="Enable Compile Time check for generated library files")
+    ParserObj.add_argument("--enable-null-only", "-eno", dest="eno", default=False, action='store_true',
+                           help="Enable Driver to use Nulls for protocol instead of unsupported function")
     # parse the args
     options = ParserObj.parse_args()
     if options.all:
@@ -419,38 +421,33 @@ def get_crypto_c(options, functions):
     sorted_functions = sort_functions(functions)
 
     # generate the function bodies
-    # for valid_type, funcs in sorted_functions:
-    #     lines.append("//=============================================================================")
-    #     lines.append(f"//     {valid_type} functions")
-    #     lines.append("//=============================================================================")
-    #     for func in funcs:
-    #         lines.extend(func.comment)
-    #         lines.append(f"// See {func.source}:{func.line_no}")
-    #         lines.append(func.return_type)
-    #         lines.append("EFIAPI")
-    #         lines.append(f"CryptoService{func.name} (")
-    #         lines.extend(func.params if len(func.params) > 0 else ["  VOID", ])
-    #         lines.append("  )")
-    #         lines.append("{")
-    #         params = func.get_params_tuple()
-    #         lines.append(f"#if _PCD_VALUE_PcdCryptoService{func.name}")
-    #         if len(params) > 0 and params[-1] == "...":
-    #             lines.append("  VA_LIST Args;")
-    #             lines.append("  BOOLEAN Result;")
-    #             lines.append(f"  VA_START (Args,{params[0]});")
-    #             lines.append(f"  Result = CryptoService{func.name} {func.get_params_formatted()};")
-    #             lines.append("  VA_END (Args);")
-    #             lines.append("  return Result;")
-    #         elif (func.return_type == "VOID"):
-    #             lines.append(f"  {func.name} ({func.get_params_formatted()});")
-    #         else:
-    #             lines.append(f"  return {func.name} {func.get_params_formatted()};")
-    #         lines.append("#else")
-    #         lines.append(f"  BaseCryptLibServiceNotEnabled (\"{func.name}\");")
-    #         if (func.return_type != "VOID"):
-    #             lines.append(f"  return {func.get_default_value()};")
-    #         lines.append("#endif")
-    #         lines.append("}")
+    if not options.eno:
+        for valid_type, funcs in sorted_functions:
+            lines.append("//=============================================================================")
+            lines.append(f"//     {valid_type} functions")
+            lines.append("//=============================================================================")
+            for func in funcs:
+                lines.extend(func.comment)
+                lines.append(f"// See {func.source}:{func.line_no}")
+                lines.append(func.return_type)
+                lines.append("EFIAPI")
+                lines.append(f"CryptoService{func.name} (")
+                lines.extend(func.params if len(func.params) > 0 else ["  VOID", ])
+                lines.append("  )")
+                lines.append("{")
+                params = func.get_params_tuple()
+                if len(params) > 0 and params[-1] == "...":
+                    lines.append("  VA_LIST Args;")
+                    lines.append("  BOOLEAN Result;")
+                    lines.append(f"  VA_START (Args,{params[0]});")
+                    lines.append(f"  Result = CryptoService{func.name} {func.get_params_formatted()};")
+                    lines.append("  VA_END (Args);")
+                    lines.append("  return Result;")
+                elif (func.return_type == "VOID"):
+                    lines.append(f"  {func.name} {func.get_params_formatted()};")
+                else:
+                    lines.append(f"  return {func.name} {func.get_params_formatted()};")
+                lines.append("}")
 
     # Generate the struct
     lines.append("\nconst EDKII_CRYPTO_PROTOCOL mEdkiiCrypto = {")
@@ -459,11 +456,13 @@ def get_crypto_c(options, functions):
     for valid_type, funcs in sorted_functions:
         lines.append(f"  // {valid_type} functions")
         for func in funcs:
-            lines.append(f"#if _PCD_VALUE_PcdCryptoService{func.name}")
+            if options.eno:
+                lines.append(f"#if _PCD_VALUE_PcdCryptoService{func.name}")
             lines.append(f"  {func.name},")
-            lines.append("#else")
-            lines.append("  NULL,")
-            lines.append("#endif")
+            if options.eno:
+                lines.append("#else")
+                lines.append("  NULL,")
+                lines.append("#endif")
     lines.append("};")
 
     generate_file_replacement(lines, "Crypto.template.c", "temp_Crypto.c", options)
