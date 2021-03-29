@@ -219,7 +219,7 @@
   CryptoPkg/Library/BaseCryptLibOnProtocolPpi/PeiCryptLib.inf
   CryptoPkg/Library/BaseCryptLibOnProtocolPpi/DxeCryptLib.inf
   # MU_CHANGE START The prebuilt versions of CryptoDriver
-  # !include CryptoPkg/Driver/Bin/CryptoPkg.ci.inc.dsc
+  !include CryptoPkg/Driver/Bin/CryptoPkg.ci.inc.dsc
 
   CryptoPkg/Test/UnitTest/Library/BaseCryptLib/TestBaseCryptLibShell.inf   ## Add unit-test application for the crypto tests.
   ## MU_CHANGE [END]
