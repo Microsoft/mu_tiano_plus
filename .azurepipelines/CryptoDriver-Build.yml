@@ -291,10 +291,6 @@ stages:
           versionSpec: $(python_version)
           architecture: 'x64'
 
-      - task: NuGetAuthenticate@0
-        inputs:
-          nuGetServiceConnections: UEFI_Bot_Nuget.org
-
       - script: pip install -r pip-requirements.txt --upgrade
         displayName: Install/Upgrade Pip Modules
 
