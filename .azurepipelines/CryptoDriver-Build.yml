@@ -263,7 +263,7 @@ stages:
       artifact: $(package_artifact_name)
 
 - ${{ if eq(parameters.publish_nuget, true) }}:
-  stage: publish
+  - stage: publish
     displayName: Publish
     dependsOn: build
 
