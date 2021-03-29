@@ -273,6 +273,8 @@ stages:
     variables:
     - name: nuget_staging_directory
       value: $(Build.StagingDirectory)/NugetPackage
+    - name: nuget_output_log
+      value: $(Build.StagingDirectory)/NugetLog.txt
 
     pool:
       vmImage: windows-latest
@@ -310,7 +312,14 @@ stages:
           targetType: 'inline'
           script: |
             $configFilePath = "CryptoPkg/Driver/Packaging/edk2-BaseCryptoDriver.config.json";
-            $publishVersion = "${{ variables.version.major }}.${{ variables.version.minor }}.${{ parameters.version_patch }}${{ variables.version.release_flavor }}";
+            $publishVersion = "$(version.major).$(version.minor).${{ parameters.version_patch }}$(version.release_flavor)";
 
-            Write-Host nuget-publish --Operation PackAndPush --ConfigFilePath "$configFilePath" --InputFolderPath "$(nuget_staging_directory)" --Version "$publishVersion";
-            nuget-publish --Operation PackAndPush --ConfigFilePath "$configFilePath" --InputFolderPath "$(nuget_staging_directory)" --Version "$publishVersion";
+            Write-Host nuget-publish --Operation PackAndPush --OutputLog "$(nuget_output_log)" --ConfigFilePath "$configFilePath" --InputFolderPath "$(nuget_staging_directory)" --Version "$publishVersion";
+            nuget-publish --Operation PackAndPush --OutputLog "$(nuget_output_log)" --ConfigFilePath "$configFilePath" --InputFolderPath "$(nuget_staging_directory)" --Version "$publishVersion";
+
+      - task: PublishBuildArtifacts@1
+        displayName: Publish Nuget Log
+        inputs:
+          pathtoPublish: '$(nuget_output_log)'
+          artifactName: 'Nuget Log'
+        condition: SucceededOrFailed()
